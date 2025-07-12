@@ -1,1 +1,11 @@
 venv/
+__pycache__/
+.ipynb_checkpoints/
+data/
+models/
+*.pkl
+*.json
+*.h5
+*.csv
+.DS_Store
+.env
