@@ -1,6 +1,4 @@
-.
-
-📘 RAG-Based Legal Document Reader
+RAG-Based Legal Document Reader
 
 A Retrieval-Augmented Generation system for legal-domain document understanding.
 
@@ -81,42 +79,7 @@ Displays generated responses clearly
 
 Built to be simple, fast, and user-friendly
 
-🚀 System Architecture
-                ┌────────────────┐
-                │   Frontend     │
-                │  (Image + Q)   │
-                └───────┬────────┘
-                        │
-                        ▼
-             ┌────────────────────┐
-             │      Backend       │
-             │  (FastAPI/Flask)   │
-             └───────┬───────────┘
-                     │
-       ┌─────────────┼──────────────────────┐
-       ▼             ▼                      ▼
-┌────────────┐  ┌────────────┐      ┌──────────────────┐
-│   OCR       │  │ Chunking   │      │ Query Embeddings │
-└──────┬──────┘  └────────────┘      └──┬───────────────┘
-       │                                 │
-       ▼                                 ▼
-┌─────────────┐                  ┌────────────────────────┐
-│ Embeddings   │                  │ MongoDB Vector Database │
-└──────┬──────┘                  │  (KB + User Chunks)     │
-       │                          └────────┬──────────────┘
-       ▼                                   │
-      ┌───────────────────────────┐        ▼
-      │ Similarity Search (FAISS) │  Top-K Chunks
-      └────────────┬──────────────┘
-                   ▼
-          ┌──────────────────┐
-          │   Flan-T5 LLM    │
-          │ (RAG Generation) │
-          └───────┬──────────┘
-                  ▼
-          Final Answer to User
-
-🛠️ Backend Workflow
+Backend Workflow
 1️⃣ Initial Knowledge Base Creation
 Documents → OCR → Chunking → Embedding → MongoDB Storage
 
