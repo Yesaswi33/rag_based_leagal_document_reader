@@ -1,91 +1,197 @@
-**Project Overview
-**
-This project is a Retrieval Augmented Generation (RAG) based legal document reader and summarization system. It is designed to process legal documents provided as images, extract text using OCR, convert that text into vector embeddings, and store them in a MongoDB vector database. Users can upload new legal documents, ask questions related to them, and receive context-aware answers or summaries generated using an LLM.
+.
 
-The system combines OCR, text chunking, embedding generation, vector similarity search, and a language model to produce accurate and document-aware responses in the legal domain.
+📘 RAG-Based Legal Document Reader
 
-**Key Features
-Document Ingestion**
+A Retrieval-Augmented Generation system for legal-domain document understanding.
 
-The system begins with an initial set of legal documents. These documents are processed to build the domain knowledge base.
-If the document is an image, OCR is applied to extract text.
-The extracted text is divided into chunks of a fixed token size to preserve context and improve retrieval quality.
-Each chunk is converted into an embedding vector.
-These vectors, along with metadata, are stored in MongoDB, which acts as the vector database for similarity search.
+📝 Overview
 
-**User Document Processing
-**
-Users upload a legal document in image format.
-OCR converts the image into text.
-The text is chunked and converted into embeddings.
-These embeddings are stored temporarily and are used to determine whether the user’s query is related to the uploaded document.
+This project is a domain-specific RAG (Retrieval-Augmented Generation) application designed for legal document summarization, question-answering, and information extraction.
 
-**Query Handling
-**
-The user enters a query along with the uploaded document.
-The query is converted into an embedding.
-Similarity is measured between the query vector and the vectors of the uploaded document chunks.
-If the similarity score exceeds a defined threshold, the system treats the query as being related to the uploaded document and retrieves the matching chunks.
-If the query is not related to the uploaded document, the system retrieves relevant chunks from the pre-stored legal knowledge base.
+It allows users to upload legal document images, performs OCR, converts the extracted text into vector embeddings, and uses a vector similarity search system (MongoDB Vector DB / FAISS) to retrieve the most relevant chunks before generating the final answer using Flan-T5 (LLM).
 
-**Retrieval and Answer Generation
-**
-Relevant chunks are retrieved using vector similarity search.
-The retrieved text is combined with the user’s query and passed to an LLM.
-The model (Flan-T5 in this project) generates the final answer or summary.
-The result is returned to the user through the frontend interface.
-**
-System Architecture
-Frontend**
+This system supports:
 
-The frontend provides a simple interface for uploading documents, submitting queries, and displaying the generated answers.
-It communicates with the backend using API endpoints.
+🔍 Summarizing long legal documents
 
-**Backend
-**
-The backend handles OCR, chunking, embedding generation, vector storage, similarity search, and communication with the language model.
-It exposes endpoints for document upload, query processing, and retrieval.
+🖼️ OCR-based text extraction from images
 
-**Vector Database
-**
-MongoDB is used to store embedding vectors and associated metadata.
-It maintains two types of records:
+🤖 Intelligent legal Q&A
 
-Domain knowledge base vectors generated during initial ingestion.
+🧠 Domain-specific contextual retrieval
 
-Temporary vectors generated from the user-uploaded document.
+📚 Automatic decision: Answer from uploaded document OR Answer from knowledge base
 
-**Complete Workflow
-**
-Initial legal documents are processed and converted into vector embeddings.
+⚙️ Key Features
+🖼️ OCR Based Document Processing
 
-These embeddings are stored in MongoDB to create the domain knowledge base.
+Accepts scanned/legal document images (JPG, PNG).
 
-The user uploads a legal document in image format.
+Uses OCR to extract clean text from images.
 
-OCR extracts text from the image.
+📄 Intelligent Text Chunking
 
-The text is chunked and embedded.
+Documents are split into ~1000-token chunks for optimal embedding & retrieval.
 
-The user submits a query.
+Handles long documents efficiently.
 
-The query is embedded and compared with the document vectors.
+🧬 Vector Embeddings + MongoDB Vector DB
 
-If relevant, results come from the uploaded document; otherwise, from the existing knowledge base.
+Each chunk is embedded using an embedding model.
 
-Retrieved chunks and the query are sent to the LLM.
+Stored inside MongoDB with vector fields for similarity search.
 
-The LLM generates a summary or answer.
+Supports:
 
-The final result is displayed to the user.
+Initial Knowledge Base (pre-loaded legal documents)
 
-**Technologies Used
-**
-Python
-OCR engine (Tesseract or equivalent)
-Text chunking and tokenization tools
-Embedding model for vector generation
-MongoDB with vector search support
-Flan-T5 model for summarization and answer generation
-Frontend framework (React or equivalent)
-Backend framework (FastAPI, Flask, or equivalent)
+User Uploaded Document Chunks
+
+🎯 Smart Query Routing
+
+When the user asks a question, the system checks:
+
+Is the question related to the user's uploaded document?
+
+YES → Retrieve from uploaded-document vectors
+
+NO → Retrieve from the pre-built legal knowledge-base vectors
+
+This ensures accurate, context-aware answers.
+
+🧠 RAG Workflow with Flan-T5
+
+Retrieved chunks are passed along with the user query into Flan-T5.
+
+Generates:
+
+Summaries
+
+Explanations
+
+Answers to legal questions
+
+🌐 Frontend
+
+Upload document interface
+
+Query input field
+
+Displays generated responses clearly
+
+Built to be simple, fast, and user-friendly
+
+🚀 System Architecture
+                ┌────────────────┐
+                │   Frontend     │
+                │  (Image + Q)   │
+                └───────┬────────┘
+                        │
+                        ▼
+             ┌────────────────────┐
+             │      Backend       │
+             │  (FastAPI/Flask)   │
+             └───────┬───────────┘
+                     │
+       ┌─────────────┼──────────────────────┐
+       ▼             ▼                      ▼
+┌────────────┐  ┌────────────┐      ┌──────────────────┐
+│   OCR       │  │ Chunking   │      │ Query Embeddings │
+└──────┬──────┘  └────────────┘      └──┬───────────────┘
+       │                                 │
+       ▼                                 ▼
+┌─────────────┐                  ┌────────────────────────┐
+│ Embeddings   │                  │ MongoDB Vector Database │
+└──────┬──────┘                  │  (KB + User Chunks)     │
+       │                          └────────┬──────────────┘
+       ▼                                   │
+      ┌───────────────────────────┐        ▼
+      │ Similarity Search (FAISS) │  Top-K Chunks
+      └────────────┬──────────────┘
+                   ▼
+          ┌──────────────────┐
+          │   Flan-T5 LLM    │
+          │ (RAG Generation) │
+          └───────┬──────────┘
+                  ▼
+          Final Answer to User
+
+🛠️ Backend Workflow
+1️⃣ Initial Knowledge Base Creation
+Documents → OCR → Chunking → Embedding → MongoDB Storage
+
+2️⃣ User Upload Flow
+
+User uploads image
+
+OCR extracts text
+
+Text is chunked
+
+Embeddings are generated
+
+Saved temporarily in MongoDB as input_doc_chunks
+
+3️⃣ Query Flow
+
+User enters a question
+
+Question is embedded
+
+System checks similarity:
+
+If highly similar to input document chunks → use these
+
+Else → fallback to knowledge base chunks
+
+Retrieve top-k similar chunks
+
+Feed into Flan-T5 with the query
+
+Return final summarized answer
+
+🧪 Technologies Used
+Component	Technology
+OCR	Tesseract / EasyOCR
+Embeddings	Any sentence/embedding model (e.g., Sentence-Transformers)
+Vector Search	MongoDB Vector Search + FAISS
+LLM	Flan-T5
+Frontend	HTML / CSS / JS / React (based on your repo)
+Backend	Python (Flask / FastAPI)
+Database	MongoDB
+▶️ How to Run the Project
+1. Clone the repository
+git clone https://github.com/Yesaswi33/rag_based_leagal_document_reader.git
+cd rag_based_leagal_document_reader
+
+2. Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+3. Install dependencies
+pip install -r requirements.txt
+
+4. Start MongoDB
+brew services start mongodb-community
+
+5. Run Backend
+python app.py
+
+6. Run Frontend
+
+(If React)
+
+npm install
+npm start
+
+📌 Project Highlights
+
+Handles real-world messy legal documents
+
+Uses RAG to guarantee factual accuracy
+
+Supports multi-document search using MongoDB vectors
+
+Combines OCR + embeddings + similarity search + LLMs
+
+Modular design, easy to extend
